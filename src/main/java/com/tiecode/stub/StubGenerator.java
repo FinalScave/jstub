@@ -1,6 +1,7 @@
 package com.tiecode.stub;
 
 import org.objectweb.asm.*;
+
 import java.io.*;
 import java.lang.reflect.Modifier;
 import java.util.Set;
@@ -69,8 +70,8 @@ public class StubGenerator {
 
     private void processStream(InputStream inStream, JarOutputStream outStream) throws IOException {
         StubClassReader reader = new StubClassReader(inStream);
-        ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_MAXS);
-        reader.accept(writer, ClassReader.SKIP_DEBUG);
+        ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        reader.accept(writer, ClassReader.EXPAND_FRAMES);
         String className = reader.getClassName();
         String entryName = className.replace('.', '/') + ".class";
         JarEntry entry = new JarEntry(entryName);
@@ -90,7 +91,7 @@ public class StubGenerator {
 
         @Override
         public void accept(ClassVisitor classVisitor, int flags) {
-            super.accept(visitor = new StubClassVisitor(Opcodes.ASM8, classVisitor), flags);
+            super.accept(visitor = new StubClassVisitor(command.getClassJDKVersion(), classVisitor), flags);
         }
 
         public String getClassName() {
@@ -114,47 +115,39 @@ public class StubGenerator {
 
         @Override
         public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
-            FieldVisitor fieldVisitor = super.visitField(access, name, descriptor, signature, value);
-            switch (command.getLevel()) {
-                case PUBLIC:
-                    if (Modifier.isProtected(access) || Modifier.isPrivate(access)) {
-                        return null;
-                    }
-                    return fieldVisitor;
-                case PROTECTED:
-                    if (Modifier.isPrivate(access)) {
-                        return null;
-                    }
-                    return fieldVisitor;
+            StubCommand.Level level = command.getLevel();
+            if (level == StubCommand.Level.PUBLIC && (Modifier.isProtected(access) || Modifier.isPrivate(access))) {
+                return null;
+            } else if (level == StubCommand.Level.PROTECTED && Modifier.isPrivate(access)) {
+                return null;
             }
-            return fieldVisitor;
+            return super.visitField(access, name, descriptor, signature, value);
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+            if (!"<init>".equals(name)) {
+                StubCommand.Level level = command.getLevel();
+                if (level == StubCommand.Level.PUBLIC && (Modifier.isProtected(access) || Modifier.isPrivate(access))) {
+                    return null;
+                } else if (level == StubCommand.Level.PROTECTED && Modifier.isPrivate(access)) {
+                    return null;
+                }
+            }
             MethodVisitor methodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions);
             if (Modifier.isAbstract(access)) {
                 return methodVisitor;
             }
-            if (!"<init>".equals(name)) {
-                switch (command.getLevel()) {
-                    case PUBLIC:
-                        if (Modifier.isProtected(access) || Modifier.isPrivate(access)) {
-                            return null;
-                        }
-                        return methodVisitor;
-                    case PROTECTED:
-                        if (Modifier.isPrivate(access)) {
-                            return null;
-                        }
-                        return methodVisitor;
-                }
-            }
             if (methodVisitor != null) {
-                return new MethodVisitor(Opcodes.ASM8) {
+                return new MethodVisitor(command.getClassJDKVersion()) {
                     @Override
                     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
                         return methodVisitor.visitAnnotation(desc, visible);
+                    }
+
+                    @Override
+                    public void visitLocalVariable(String name, String descriptor, String signature, Label start, Label end, int index) {
+                        methodVisitor.visitLocalVariable(name, descriptor, signature, start, end, index);
                     }
 
                     @Override
@@ -174,5 +167,4 @@ public class StubGenerator {
             return className;
         }
     }
-
 }

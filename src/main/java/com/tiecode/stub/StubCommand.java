@@ -14,11 +14,13 @@ import java.util.Set;
  */
 public class StubCommand {
 
-    private static final String COMMAND_OUTPUT = "-out";
-    private static final String COMMAND_LEVEL = "-level";
-    private static final String COMMAND_HELP = "--help";
+    private static final String OUT_PATH = "-out";
+    private static final String MODIFIER_LEVEL = "-level";
+    private static final String CLASS_JDK_VERSION = "--class-jdk-version";
+    private static final String HELP = "--help";
 
     private boolean printHelp;
+    private int classJDKVersion = 8;
     private String outPath;
     private Level level = Level.PROTECTED;
     private Set<File> files = new HashSet<>();
@@ -32,19 +34,19 @@ public class StubCommand {
 
     private void processCommand(String[] args) {
         if (args.length == 0) {
-            this.printHelp = true;
+            printHelp();
             throw new RuntimeException(BundleUtil.getCommandText(BundleKey.no_error));
         }
         for (int i = 0, length = args.length; i < length; i++) {
             switch (args[i]) {
-                case COMMAND_OUTPUT:
+                case OUT_PATH:
                     if (i + 1 < length) {
                         this.outPath = args[++i];
                     } else {
                         throw new RuntimeException(BundleUtil.getCommandText(BundleKey.out_error));
                     }
                     break;
-                case COMMAND_LEVEL:
+                case MODIFIER_LEVEL:
                     if (i + 1 < length) {
                         try {
                             int num = Integer.parseInt(args[++i]);
@@ -65,7 +67,24 @@ public class StubCommand {
                         throw new RuntimeException(BundleUtil.getCommandText(BundleKey.level_error));
                     }
                     break;
-                case COMMAND_HELP:
+                case CLASS_JDK_VERSION:
+                    if (i + 1 < length) {
+                        try {
+                            int num = Integer.parseInt(args[++i]);
+                            if (num >= 4 && num <= 9) {
+                                this.classJDKVersion = num << 16 | 0 << 8;
+                            } else {
+                                throw new RuntimeException(BundleUtil.getCommandText(BundleKey.jdk_param_error));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            throw new RuntimeException(BundleUtil.getCommandText(BundleKey.jdk_param_error));
+                        }
+                    } else {
+                        throw new RuntimeException(BundleUtil.getCommandText(BundleKey.jdk_error));
+                    }
+                    break;
+                case HELP:
                     this.printHelp = true;
                     return;
                 default:
@@ -93,6 +112,7 @@ public class StubCommand {
         System.out.println(BundleUtil.getCommandText(BundleKey.help_level0));
         System.out.println(BundleUtil.getCommandText(BundleKey.help_level1));
         System.out.println(BundleUtil.getCommandText(BundleKey.help_level2));
+        System.out.println(BundleUtil.getCommandText(BundleKey.jdk_version));
         System.out.println(BundleUtil.getCommandText(BundleKey.help_command));
     }
 
@@ -102,6 +122,14 @@ public class StubCommand {
 
     public void setPrintHelp(boolean printHelp) {
         this.printHelp = printHelp;
+    }
+
+    public int getClassJDKVersion() {
+        return classJDKVersion;
+    }
+
+    public void setClassJDKVersion(int classJDKVersion) {
+        this.classJDKVersion = classJDKVersion;
     }
 
     public String getOutPath() {

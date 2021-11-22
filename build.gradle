@@ -10,7 +10,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.ow2.asm:asm:8.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    implementation 'org.ow2.asm:asm:9.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
