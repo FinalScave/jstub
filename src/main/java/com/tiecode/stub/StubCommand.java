@@ -2,6 +2,7 @@ package com.tiecode.stub;
 
 import com.tiecode.stub.util.BundleKey;
 import com.tiecode.stub.util.BundleUtil;
+import org.objectweb.asm.Opcodes;
 
 import java.io.File;
 import java.util.HashSet;
@@ -20,7 +21,7 @@ public class StubCommand {
     private static final String HELP = "--help";
 
     private boolean printHelp;
-    private int classJDKVersion = 8;
+    private int classJDKVersion = Opcodes.ASM8;
     private String outPath;
     private Level level = Level.PROTECTED;
     private Set<File> files = new HashSet<>();
