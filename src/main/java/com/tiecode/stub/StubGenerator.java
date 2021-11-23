@@ -54,7 +54,7 @@ public class StubGenerator {
             JarInputStream inStream = new JarInputStream(new FileInputStream(file));
             JarEntry entry = inStream.getNextJarEntry();
             while (entry != null) {
-                if (!entry.isDirectory()) {
+                if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
                     processStream(inStream, outStream);
                 }
                 inStream.closeEntry();
