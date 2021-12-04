@@ -1,4 +1,4 @@
-package com.tiecode.stub.util;
+package com.tiecode.platform.jstub.util;
 
 /**
  * bundle key constants
@@ -16,7 +16,6 @@ public interface BundleKey {
     String help_level0 = "help_level0";
     String help_level1 = "help_level1";
     String help_level2 = "help_level2";
-    String jdk_version = "jdk_version";
     String help_command = "help_command";
 
     /**
@@ -28,6 +27,4 @@ public interface BundleKey {
     String out_must_error = "out_must_error";
     String level_error = "level_error";
     String level_param_error = "level_param_error";
-    String jdk_error = "jdk_error";
-    String jdk_param_error = "jdk_param_error";
 }

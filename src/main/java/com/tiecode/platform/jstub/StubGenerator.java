@@ -1,4 +1,4 @@
-package com.tiecode.stub;
+package com.tiecode.platform.jstub;
 
 import org.objectweb.asm.*;
 
@@ -91,7 +91,7 @@ public class StubGenerator {
 
         @Override
         public void accept(ClassVisitor classVisitor, int flags) {
-            super.accept(visitor = new StubClassVisitor(command.getClassJDKVersion(), classVisitor), flags);
+            super.accept(visitor = new StubClassVisitor(Opcodes.ASM9, classVisitor), flags);
         }
 
         public String getClassName() {
@@ -139,7 +139,7 @@ public class StubGenerator {
                 return methodVisitor;
             }
             if (methodVisitor != null) {
-                return new MethodVisitor(command.getClassJDKVersion()) {
+                return new MethodVisitor(Opcodes.ASM9) {
                     @Override
                     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
                         return methodVisitor.visitAnnotation(desc, visible);

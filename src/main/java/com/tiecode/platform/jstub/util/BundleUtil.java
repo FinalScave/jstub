@@ -1,4 +1,4 @@
-package com.tiecode.stub.util;
+package com.tiecode.platform.jstub.util;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -13,7 +13,7 @@ public class BundleUtil {
     private static final ResourceBundle jstubBundle;
 
     static {
-        jstubBundle = ResourceBundle.getBundle("com.tiecode.stub.jstub-command", Locale.getDefault());
+        jstubBundle = ResourceBundle.getBundle("com.tiecode.platform.jstub.jstub-command", Locale.getDefault());
     }
 
     public static String getCommandText(String key) {

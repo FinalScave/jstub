@@ -1,7 +1,7 @@
-package com.tiecode.stub;
+package com.tiecode.platform.jstub;
 
-import com.tiecode.stub.util.BundleKey;
-import com.tiecode.stub.util.BundleUtil;
+import com.tiecode.platform.jstub.util.BundleKey;
+import com.tiecode.platform.jstub.util.BundleUtil;
 import org.objectweb.asm.Opcodes;
 
 import java.io.File;
@@ -17,11 +17,9 @@ public class StubCommand {
 
     private static final String OUT_PATH = "-out";
     private static final String MODIFIER_LEVEL = "-level";
-    private static final String CLASS_JDK_VERSION = "--class-jdk-version";
     private static final String HELP = "--help";
 
     private boolean printHelp;
-    private int classJDKVersion = Opcodes.ASM8;
     private String outPath;
     private Level level = Level.PROTECTED;
     private Set<File> files = new HashSet<>();
@@ -68,23 +66,6 @@ public class StubCommand {
                         throw new RuntimeException(BundleUtil.getCommandText(BundleKey.level_error));
                     }
                     break;
-                case CLASS_JDK_VERSION:
-                    if (i + 1 < length) {
-                        try {
-                            int num = Integer.parseInt(args[++i]);
-                            if (num >= 4 && num <= 9) {
-                                this.classJDKVersion = num << 16 | 0 << 8;
-                            } else {
-                                throw new RuntimeException(BundleUtil.getCommandText(BundleKey.jdk_param_error));
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            throw new RuntimeException(BundleUtil.getCommandText(BundleKey.jdk_param_error));
-                        }
-                    } else {
-                        throw new RuntimeException(BundleUtil.getCommandText(BundleKey.jdk_error));
-                    }
-                    break;
                 case HELP:
                     this.printHelp = true;
                     return;
@@ -113,7 +94,6 @@ public class StubCommand {
         System.out.println(BundleUtil.getCommandText(BundleKey.help_level0));
         System.out.println(BundleUtil.getCommandText(BundleKey.help_level1));
         System.out.println(BundleUtil.getCommandText(BundleKey.help_level2));
-        System.out.println(BundleUtil.getCommandText(BundleKey.jdk_version));
         System.out.println(BundleUtil.getCommandText(BundleKey.help_command));
     }
 
@@ -123,14 +103,6 @@ public class StubCommand {
 
     public void setPrintHelp(boolean printHelp) {
         this.printHelp = printHelp;
-    }
-
-    public int getClassJDKVersion() {
-        return classJDKVersion;
-    }
-
-    public void setClassJDKVersion(int classJDKVersion) {
-        this.classJDKVersion = classJDKVersion;
     }
 
     public String getOutPath() {
